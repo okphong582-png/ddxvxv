@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ADMIN PANEL - QUẢN LÝ TẠO TOKEN BẢN QUYỀN TELEGRAM BOT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: #0f172a;
+      --card-hover: #162238;
+      --border: rgba(255, 255, 255, 0.08);
+      --gold: #ffd700;
+      --cyan: #00f0ff;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --font: 'Outfit', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      background-image: radial-gradient(circle at 50% 0%, rgba(2, 132, 199, 0.18) 0%, transparent 60%);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    /* Header */
+    .admin-header {
+      background: var(--card);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .crown { font-size: 32px; }
+    .title-h1 { font-size: 20px; font-weight: 900; color: var(--gold); letter-spacing: 0.5px; }
+    .title-sub { font-size: 12px; color: #94a3b8; }
+    .header-stats {
+      display: flex;
+      gap: 12px;
+    }
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      text-align: center;
+    }
+    .stat-label { font-size: 10px; color: #64748b; font-weight: 800; display: block; }
+    .stat-num { font-size: 18px; font-weight: 900; font-family: var(--mono); color: #fff; }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: flex-end;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+    .input-field, .select-field {
+      background: #090e1a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+    }
+    .input-field:focus, .select-field:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    }
+    .mono-input { font-family: var(--mono); }
+    .btn-create {
+      background: linear-gradient(135deg, #ffd700, #ff8800);
+      color: #000;
+      font-weight: 900;
+      font-size: 13px;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+      transition: all 0.2s;
+    }
+    .btn-create:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      color: #64748b;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.8px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    tr:hover { background: var(--card-hover); }
+
+    .token-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .token-text {
+      font-family: var(--mono);
+      font-weight: 800;
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 215, 0, 0.25);
+    }
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-copy:hover { background: #38bdf8; color: #000; }
+
+    .tag-status {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag-free {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .tag-used {
+      background: rgba(244, 63, 94, 0.15);
+      color: var(--rose);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .btn-del {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: var(--rose);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-del:hover { background: var(--rose); color: #fff; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+  </style>
+  <!-- Firebase JS SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-title">
+        <span class="crown">☁️</span>
+        <div>
+          <h1 class="title-h1">HOANGHA SKY - TRUNG TÂM CẤP TOKEN BẢN QUYỀN</h1>
+          <p class="title-sub">Super Admin: <strong>@hoangha</strong> (ID: <code>6482147126</code>) • Phong cách Sky Thực Chiến</p>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-badge">
+          <span class="stat-label">TỔNG TOKEN</span>
+          <span class="stat-num" id="totalCount">0</span>
+        </div>
+        <div class="stat-badge">
+          <span class="stat-label">CHƯA SỬ DỤNG</span>
+          <span class="stat-num" style="color:var(--emerald);" id="freeCount">0</span>
+        </div>
+        <div class="stat-badge">
+          <span class="stat-label">ĐÃ KÍCH HOẠT</span>
+          <span class="stat-num" style="color:var(--rose);" id="usedCount">0</span>
+        </div>
+        <a href="#endpointsSection" style="text-decoration:none; padding:10px 16px; font-size:12px; font-weight:800; color:#fff; background:linear-gradient(135deg, #0284c7, #0369a1); border-radius:10px; border:1px solid rgba(56,189,248,0.4); display:flex; align-items:center; gap:6px; box-shadow: 0 4px 15px rgba(2,132,199,0.3);">
+          🌐 QUẢN LÝ LINK API
+        </a>
+      </div>
+    </header>
+
+    <!-- Maintenance Control Box -->
+    <div class="card" style="border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.05);">
+      <h2 class="card-title" style="color: #f43f5e;">⚠️ BẢO TRÌ HỆ THỐNG TELEGRAM BOT</h2>
+      <div style="display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 6px;">
+          <label class="label">Nội dung thông báo bảo trì gửi người dùng:</label>
+          <input type="text" id="maintenanceInput" class="input-field" value="Hệ thống đang bảo trì để cập nhật API các cổng game. Vui lòng quay lại sau ít phút!">
+        </div>
+        <button class="btn-create" id="toggleMaintenanceBtn" style="background: linear-gradient(135deg, #f43f5e, #be123c); color: #fff;">
+          BẬT BẢO TRÌ
+        </button>
+      </div>
+      <div id="maintenanceStatusText" style="font-size: 12px; margin-top: 10px; color: #94a3b8;">
+        Trạng thái: 🟢 Hoạt động bình thường
+      </div>
+    </div>
+
+    <!-- Admin & User Management Box -->
+    <div class="card" style="border-color: rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.03);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <h2 class="card-title" style="color: var(--cyan); margin-bottom: 0;">
+          👑 QUẢN LÝ ADMIN & DÂN THƯỜNG (CHUYỂN QUA LẠI 2 CHIỀU)
+        </h2>
+        <span style="font-size: 12px; color: #94a3b8;">
+          Quản Trị Viên: <strong id="adminCountBadge" style="color: var(--cyan); font-family: var(--mono); font-size: 14px;">0</strong> |
+          Dân Thường: <strong id="demotedCountBadge" style="color: var(--rose); font-family: var(--mono); font-size: 14px;">0</strong>
+        </span>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 16px;">
+        Cho phép chuyển đổi linh hoạt 2 chiều: <b>Admin ⇄ Dân thường</b> cho bất kỳ ai (bao gồm tài khoản chính <code>6482147126</code>). Khi là Dân thường, tài khoản bị thu hồi toàn bộ quyền quản trị và phải có token để soi cầu như người bình thường.
+      </p>
+
+      <!-- Quick Switch Cards 1 Chạm -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 22px;">
+        <!-- Card 1: 6482147126 -->
+        <div id="quickCard_6482147126" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 12px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 3px;">TÀI KHOẢN SUPER ADMIN</div>
+            <div style="font-weight: 800; font-size: 15px; color: #fff;">Hoangha</div>
+            <div style="font-size: 12px; color: var(--gold); font-family: var(--mono);">ID: 6482147126</div>
+            <div id="quickStatus_6482147126" style="margin-top: 6px;">
+              <span class="tag-status" style="background:rgba(255,215,0,0.15); color:var(--gold); border:1px solid rgba(255,215,0,0.3);">👑 Super Admin</span>
+            </div>
+          </div>
+          <div id="quickBtnWrap_6482147126">
+            <button class="btn-del" style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.4); color: var(--rose); padding: 8px 14px; font-size: 12px; font-weight: 700; cursor:pointer;" onclick="toggleAdminRoleQuick('6482147126', 'hoangha')">
+              🔄 Chuyển Dân Thường
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add / Set Role Form -->
+      <div class="form-grid" style="margin-bottom: 24px;">
+        <div class="form-group">
+          <label class="label">Telegram ID cần phân quyền:</label>
+          <input type="text" id="newAdminId" class="input-field mono-input" placeholder="VD: 6482147126 hoặc ID bất kỳ">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Tên hiển thị / Username / Ghi chú:</label>
+          <input type="text" id="newAdminName" class="input-field" placeholder="VD: Quản trị viên Hùng (@hungdev)">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Vai trò mong muốn:</label>
+          <select id="newAdminRole" class="select-field">
+            <option value="Super Admin">👑 Super Admin (Toàn quyền quản trị)</option>
+            <option value="Admin">🛡️ Admin (Quản trị viên thường)</option>
+            <option value="Dân thường">👤 Dân thường (Người dùng bình thường - Mất quyền)</option>
+          </select>
+        </div>
+
+        <button class="btn-create" id="addAdminBtn" style="background: linear-gradient(135deg, #00f0ff, #0284c7); color: #000; font-weight: 800;">
+          ⚡ CẬP NHẬT VAI TRÒ NGAY
+        </button>
+      </div>
+
+      <!-- Active Admin List Table -->
+      <h3 style="font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+        <span>👑</span> DANH SÁCH QUẢN TRỊ VIÊN (ADMIN) ĐANG HOẠT ĐỘNG
+      </h3>
+      <div class="table-wrap" style="margin-bottom: 24px;">
+        <table>
+          <thead>
+            <tr>
+              <th>TELEGRAM ID</th>
+              <th>TÊN QUẢN TRỊ VIÊN</th>
+              <th>VAI TRÒ</th>
+              <th>CẬP NHẬT</th>
+              <th>THAO TÁC (CHUYỂN QUA LẠI)</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Đang tải danh sách Admin...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Demoted / User List Table -->
+      <h3 style="font-size: 13px; font-weight: 800; color: #94a3b8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+        <span>👤</span> DANH SÁCH DÂN THƯỜNG (ĐÃ HẠ QUYỀN / NGƯỜI DÙNG THƯỜNG)
+      </h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>TELEGRAM ID</th>
+              <th>TÊN TÀI KHOẢN</th>
+              <th>VAI TRÒ</th>
+              <th>THỜI GIAN HẠ QUYỀN</th>
+              <th>THAO TÁC (NÂNG LÊN ADMIN)</th>
+            </tr>
+          </thead>
+          <tbody id="demotedTableBody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Không có tài khoản dân thường nào.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Card Transactions Box (DoiTheVip) -->
+    <div class="card" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.03);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <h2 class="card-title" style="color: var(--emerald); margin-bottom: 0;">
+          💳 LỊCH SỬ NẠP THẺ CÀO BÁN TOKEN TỰ ĐỘNG (DOITHEVIP)
+        </h2>
+        <span style="font-size: 12px; color: #94a3b8;">
+          Tổng Giao Dịch: <strong id="cardTxCountBadge" style="color: var(--emerald); font-family: var(--mono); font-size: 14px;">0</strong>
+        </span>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 16px;">
+        Danh sách thẻ cào do người dùng gửi nạp qua Telegram Bot. Hệ thống kết nối API DoiTheVip.com tự động gạch thẻ và cấp token VIP (Gói 7 Ngày: 200k, Gói 30 Ngày: 1M).
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>MÃ ĐƠN (REQ_ID)</th>
+              <th>NGƯỜI DÙNG</th>
+              <th>NHÀ MẠNG</th>
+              <th>MỆNH GIÁ</th>
+              <th>TRẠNG THÁI</th>
+              <th>TOKEN ĐÃ CẤP</th>
+              <th>THỜI GIAN</th>
+            </tr>
+          </thead>
+          <tbody id="cardTxTableBody">
+            <tr>
+              <td colspan="7" style="text-align:center; padding:20px; color:#64748b;">Chưa có giao dịch nạp thẻ nào.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Endpoints Management Box -->
+    <div class="card" id="endpointsSection" style="border-color: rgba(14, 165, 233, 0.4); background: rgba(14, 165, 233, 0.03);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <h2 class="card-title" style="color: #38bdf8; margin-bottom: 0;">
+          🌐 QUẢN LÝ LINK API CÁC CỔNG GAME (CLOUDFLARE / PROXY)
+        </h2>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input type="text" id="endpointSearchInput" class="input-field" placeholder="🔍 Tìm kiếm cổng game..." style="padding: 7px 14px; font-size: 12px; width: 220px;">
+          <span style="font-size: 12px; color: #94a3b8;">
+            Tổng: <strong id="endpointCountBadge" style="color: #38bdf8; font-family: var(--mono); font-size: 14px;">0</strong> cổng
+          </span>
+        </div>
+      </div>
+      <p style="font-size: 12px; color: #94a3b8; margin-bottom: 16px;">
+        Hệ thống tự động đồng bộ link API các cổng game. Khi đổi link Cloudflare proxy, chỉ cần dán link mới vào ô tương ứng và bấm <strong>💾 Lưu Link</strong>, hệ thống sẽ cập nhật ngay lập tức cho bộ quét Collector và Bot Telegram.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">STT</th>
+              <th style="width: 220px;">CỔNG GAME</th>
+              <th style="width: 140px;">MÃ ID</th>
+              <th>LINK API / CLOUDFLARE URL</th>
+              <th style="width: 160px; text-align: center;">THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody id="endpointsTableBody">
+            <tr>
+              <td colspan="5" style="text-align:center; padding:25px; color:#64748b;">Đang tải danh sách link API các cổng game...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="card">
+      <h2 class="card-title">⚡ TẠO MÃ TOKEN MỚI</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="label">Tiền tố (Prefix):</label>
+          <input type="text" id="tokenPrefix" class="input-field mono-input" value="VIP-" placeholder="VD: VIP-">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Thời hạn sử dụng:</label>
+          <select id="tokenDuration" class="select-field">
+            <option value="Vĩnh viễn">Vĩnh viễn (Trọn đời)</option>
+            <option value="30 Ngày">30 Ngày</option>
+            <option value="7 Ngày">7 Ngày</option>
+            <option value="1 Ngày">1 Ngày (Dùng thử)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Ghi chú (Tên khách / SĐT):</label>
+          <input type="text" id="tokenNote" class="input-field" placeholder="VD: Khách Zalo 0988...">
+        </div>
+
+        <div class="form-group">
+          <label class="label">Số lượng cần tạo:</label>
+          <select id="tokenQty" class="select-field">
+            <option value="1">1 Mã Token</option>
+            <option value="5">5 Mã Token</option>
+            <option value="10">10 Mã Token</option>
+          </select>
+        </div>
+
+        <button class="btn-create" id="createTokenBtn">⚡ TẠO MÃ NGAY</button>
+      </div>
+    </div>
+
+    <!-- Table of Tokens -->
+    <div class="card">
+      <h2 class="card-title">📋 DANH SÁCH MÃ TOKEN ĐÃ CẤP</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>MÃ TOKEN</th>
+              <th>THỜI HẠN</th>
+              <th>GHI CHÚ</th>
+              <th>TRẠNG THÁI</th>
+              <th>NGƯỜI KÍCH HOẠT</th>
+              <th>NGÀY TẠO</th>
+              <th>THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody id="tokenTableBody">
+            <tr>
+              <td colspan="7" style="text-align:center; padding:30px; color:#64748b;">Đang đồng bộ dữ liệu từ Firebase...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script>
+    // Firebase Config từ người dùng cung cấp
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTnJF15YmZ5aSlkodR9S0QGr7OC2rRvEY",
+      authDomain: "webe-f3a6e.firebaseapp.com",
+      databaseURL: "https://webe-f3a6e-default-rtdb.firebaseio.com",
+      projectId: "webe-f3a6e",
+      storageBucket: "webe-f3a6e.firebasestorage.app",
+      messagingSenderId: "1040643741311",
+      appId: "1:1040643741311:web:42e7c8b638adadff1e514a",
+      measurementId: "G-ETHYJFTD0N"
+    };
+
+    // Khởi tạo Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const tokensRef = db.ref('tokens');
+    const maintenanceRef = db.ref('system/maintenance');
+
+    let currentMaintenance = { active: false, message: '' };
+
+    // Lắng nghe trạng thái bảo trì
+    maintenanceRef.on('value', (snap) => {
+      currentMaintenance = snap.val() || { active: false, message: '' };
+      const btn = document.getElementById('toggleMaintenanceBtn');
+      const text = document.getElementById('maintenanceStatusText');
+      const input = document.getElementById('maintenanceInput');
+
+      if (currentMaintenance.active) {
+        btn.textContent = 'TẮT BẢO TRÌ';
+        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        text.innerHTML = `Trạng thái: 🔴 <strong>ĐANG BẢO TRÌ</strong> - Thông báo: "<em>${currentMaintenance.message}</em>"`;
+        text.style.color = '#f43f5e';
+      } else {
+        btn.textContent = 'BẬT BẢO TRÌ';
+        btn.style.background = 'linear-gradient(135deg, #f43f5e, #be123c)';
+        text.innerHTML = 'Trạng thái: 🟢 <strong>HOẠT ĐỘNG BÌNH THƯỜNG</strong>';
+        text.style.color = '#10b981';
+      }
+      if (currentMaintenance.message && !input.matches(':focus')) {
+        input.value = currentMaintenance.message;
+      }
+    });
+
+    document.getElementById('toggleMaintenanceBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('maintenanceInput').value.trim();
+      const willBeActive = !currentMaintenance.active;
+      await maintenanceRef.set({
+        active: willBeActive,
+        message: msg || 'Hệ thống đang bảo trì để cập nhật API các cổng game. Vui lòng quay lại sau!',
+        updated_at: new Date().toISOString()
+      });
+      showToast(willBeActive ? 'Đã kích hoạt chế độ bảo trì!' : 'Đã tắt chế độ bảo trì!');
+    });
+
+    // Hàm sinh chuỗi ngẫu nhiên
+    function makeRandomKey(len = 8) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let res = '';
+      for (let i = 0; i < len; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return res;
+    }
+
+    // Lắng nghe dữ liệu thời gian thực từ Firebase
+    tokensRef.on('value', (snapshot) => {
+      const data = snapshot.val() || {};
+      renderTable(data);
+    });
+
+    function renderTable(tokensObj) {
+      const tbody = document.getElementById('tokenTableBody');
+      tbody.innerHTML = '';
+
+      const list = Object.values(tokensObj).reverse();
+      let free = 0;
+      let used = 0;
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#64748b;">Chưa có mã token nào. Hãy bấm "TẠO MÃ NGAY" ở trên!</td></tr>';
+        document.getElementById('totalCount').textContent = 0;
+        document.getElementById('freeCount').textContent = 0;
+        document.getElementById('usedCount').textContent = 0;
+        return;
+      }
+
+      list.forEach(t => {
+        if (t.used) used++;
+        else free++;
+
+        const tr = document.createElement('tr');
+        const userTag = t.used
+          ? `<strong style="color:#38bdf8;">${t.used_by_name || 'User'}</strong> <span style="font-size:11px; color:#64748b;">(ID: ${t.used_by_id})</span>`
+          : '<span style="color:#64748b;">-</span>';
+
+        const statusTag = t.used
+          ? '<span class="tag-status tag-used">🔴 Đã Kích Hoạt</span>'
+          : '<span class="tag-status tag-free">🟢 Chưa Dùng (Sẵn Sàng)</span>';
+
+        tr.innerHTML = `
+          <td>
+            <div class="token-box">
+              <span class="token-text">${t.token}</span>
+              <button class="btn-copy" onclick="copyToken('${t.token}')">Copy</button>
+            </div>
+          </td>
+          <td><strong>${t.duration || 'Vĩnh viễn'}</strong></td>
+          <td>${t.note || '-'}</td>
+          <td>${statusTag}</td>
+          <td>${userTag}</td>
+          <td style="font-size:11px; color:#94a3b8;">${new Date(t.created_at).toLocaleString('vi-VN')}</td>
+          <td>
+            <button class="btn-del" onclick="deleteToken('${t.token}')">Xóa</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('totalCount').textContent = list.length;
+      document.getElementById('freeCount').textContent = free;
+      document.getElementById('usedCount').textContent = used;
+    }
+
+    // Nút tạo token
+    document.getElementById('createTokenBtn').addEventListener('click', async () => {
+      const prefix = document.getElementById('tokenPrefix').value.trim().toUpperCase() || 'VIP-';
+      const duration = document.getElementById('tokenDuration').value;
+      const note = document.getElementById('tokenNote').value.trim() || 'Tạo bởi Admin';
+      const qty = parseInt(document.getElementById('tokenQty').value) || 1;
+
+      const now = new Date().toISOString();
+      const updates = {};
+
+      for (let i = 0; i < qty; i++) {
+        const key = `${prefix}${makeRandomKey(4)}-${makeRandomKey(4)}`;
+        updates[key] = {
+          token: key,
+          duration,
+          note,
+          created_at: now,
+          used: false,
+          used_by_id: null,
+          used_by_name: null,
+          used_at: null
+        };
+      }
+
+      await tokensRef.update(updates);
+      showToast(`Đã tạo thành công ${qty} mã token mới!`);
+    });
+
+    // ================= QUẢN LÝ ADMIN & DÂN THƯỜNG =================
+    const adminsRef = db.ref('system/admins');
+
+    // Lắng nghe danh sách Admin Realtime từ Firebase
+    adminsRef.on('value', (snap) => {
+      const data = snap.val() || {};
+      renderAdminTables(data);
+    });
+
+    function isAccountAdmin(a) {
+      if (!a) return false;
+      if (a.is_admin === false) return false;
+      const role = String(a.role || '').trim().toLowerCase();
+      if (role === 'user' || role === 'dân thường' || role === 'dan thuong' || role === 'người dùng' || role === 'nguoi dung') {
+        return false;
+      }
+      return true;
+    }
+
+    function renderAdminTables(data) {
+      const adminList = [];
+      const demotedList = [];
+
+      Object.values(data).forEach(item => {
+        if (isAccountAdmin(item)) {
+          adminList.push(item);
+        } else {
+          demotedList.push(item);
+        }
+      });
+
+      document.getElementById('adminCountBadge').textContent = adminList.length;
+      document.getElementById('demotedCountBadge').textContent = demotedList.length;
+
+      // 1. Cập nhật Quick Switch Card cho Super Admin
+      updateQuickCard('6482147126', 'hoangha', data['6482147126']);
+
+      // 2. Render Active Admins Table
+      const adminTbody = document.getElementById('adminTableBody');
+      adminTbody.innerHTML = '';
+
+      if (adminList.length === 0) {
+        adminTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#f43f5e;">Hiện chưa có Admin nào! Hãy thêm hoặc nâng quyền bên dưới.</td></tr>';
+      } else {
+        adminList.forEach(a => {
+          const tr = document.createElement('tr');
+          const isSuper = (a.role || '').toLowerCase().includes('super') || a.id === '6482147126';
+
+          const roleBadge = isSuper
+            ? `<span class="tag-status" style="background:rgba(255,215,0,0.15); color:var(--gold); border:1px solid rgba(255,215,0,0.3);">👑 ${a.role || 'Super Admin'}</span>`
+            : `<span class="tag-status" style="background:rgba(0,240,255,0.15); color:var(--cyan); border:1px solid rgba(0,240,255,0.3);">🛡️ ${a.role || 'Admin'}</span>`;
+
+          tr.innerHTML = `
+            <td><code style="font-family:var(--mono); font-weight:800; color:var(--gold);">${a.id}</code></td>
+            <td><strong style="color:#fff;">${a.name || a.username || 'Admin ' + a.id}</strong></td>
+            <td>${roleBadge}</td>
+            <td style="font-size:11px; color:#94a3b8;">${a.updated_at ? new Date(a.updated_at).toLocaleString('vi-VN') : (a.created_at ? new Date(a.created_at).toLocaleString('vi-VN') : 'Ban đầu')}</td>
+            <td>
+              <button class="btn-copy" style="background:rgba(0,240,255,0.15); border:1px solid rgba(0,240,255,0.3); color:var(--cyan); font-weight:700; padding:4px 9px; margin-right:6px;" onclick="editAdminRole('${a.id}', '${escapeQuotes(a.name || '')}', '${escapeQuotes(a.role || 'Super Admin')}')">✏️ Sửa Chức Vụ</button>
+              <button class="btn-del" style="background:rgba(244,63,94,0.15); border-color:rgba(244,63,94,0.3); color:var(--rose); font-weight:700; padding:4px 9px; margin-right:6px;" onclick="demoteAdminToUser('${a.id}', '${escapeQuotes(a.name || a.id)}')">🔄 Chuyển Dân Thường</button>
+              <button class="btn-del" style="background:transparent; border-color:#475569; color:#94a3b8; padding:4px 8px;" onclick="deleteAdminPermanently('${a.id}', '${escapeQuotes(a.name || a.id)}')">🗑️</button>
+            </td>
+          `;
+          adminTbody.appendChild(tr);
+        });
+      }
+
+      // 3. Render Demoted / User Table
+      const demotedTbody = document.getElementById('demotedTableBody');
+      demotedTbody.innerHTML = '';
+
+      if (demotedList.length === 0) {
+        demotedTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Không có tài khoản dân thường nào.</td></tr>';
+      } else {
+        demotedList.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><code style="font-family:var(--mono); font-weight:700; color:#94a3b8;">${u.id}</code></td>
+            <td><strong style="color:#cbd5e1;">${u.name || u.username || 'Người dùng ' + u.id}</strong></td>
+            <td><span class="tag-status" style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid rgba(148,163,184,0.3);">👤 Dân thường (Mất quyền)</span></td>
+            <td style="font-size:11px; color:#94a3b8;">${u.demoted_at ? new Date(u.demoted_at).toLocaleString('vi-VN') : 'Đã chuyển'}</td>
+            <td>
+              <button class="btn-copy" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:var(--emerald); font-weight:700; padding:4px 10px; margin-right:6px;" onclick="promoteUserToAdmin('${u.id}', '${escapeQuotes(u.name || u.id)}')">👑 Nâng Lại Thành Admin</button>
+              <button class="btn-del" style="background:transparent; border-color:#475569; color:#94a3b8; padding:4px 8px;" onclick="deleteAdminPermanently('${u.id}', '${escapeQuotes(u.name || u.id)}')">🗑️</button>
+            </td>
+          `;
+          demotedTbody.appendChild(tr);
+        });
+      }
+    }
+
+    function escapeQuotes(str) {
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function updateQuickCard(id, defaultUsername, accountData) {
+      const cardWrap = document.getElementById(`quickCard_${id}`);
+      const statusWrap = document.getElementById(`quickStatus_${id}`);
+      const btnWrap = document.getElementById(`quickBtnWrap_${id}`);
+      if (!cardWrap || !statusWrap || !btnWrap) return;
+
+      const isAdmin = isAccountAdmin(accountData);
+
+      if (isAdmin) {
+        cardWrap.style.borderColor = 'rgba(255, 215, 0, 0.4)';
+        statusWrap.innerHTML = `<span class="tag-status" style="background:rgba(255,215,0,0.15); color:var(--gold); border:1px solid rgba(255,215,0,0.3);">👑 ${accountData ? (accountData.role || 'Super Admin') : 'Super Admin'} (Đang là Admin)</span>`;
+        btnWrap.innerHTML = `
+          <button class="btn-del" style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.4); color: var(--rose); padding: 8px 14px; font-size: 12px; font-weight: 700; cursor:pointer;" onclick="toggleAdminRoleQuick('${id}', '${defaultUsername}', true)">
+            🔄 Chuyển Dân Thường
+          </button>
+        `;
+      } else {
+        cardWrap.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+        statusWrap.innerHTML = `<span class="tag-status" style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid rgba(148,163,184,0.3);">👤 Dân thường (Mất quyền)</span>`;
+        btnWrap.innerHTML = `
+          <button class="btn-copy" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--emerald); padding: 8px 14px; font-size: 12px; font-weight: 800; cursor:pointer;" onclick="toggleAdminRoleQuick('${id}', '${defaultUsername}', false)">
+            👑 Nâng Lại Làm Admin
+          </button>
+        `;
+      }
+    }
+
+    // Chuyển đổi nhanh 1 chạm cho 2 tài khoản chính
+    window.toggleAdminRoleQuick = async function(id, defaultUsername, currentIsAdmin) {
+      const now = new Date().toISOString();
+      if (currentIsAdmin) {
+        if (!confirm(`Bạn có chắc chắn muốn chuyển tài khoản [${defaultUsername}] (ID: ${id}) thành DÂN THƯỜNG?\n\nTài khoản này sẽ mất toàn bộ quyền quản trị bot ngay lập tức, muốn soi cầu phải có token như người dùng bình thường!`)) {
+          return;
+        }
+        await adminsRef.child(id).update({
+          id: String(id),
+          username: `@${defaultUsername}`,
+          name: `User (@${defaultUsername})`,
+          role: 'Dân thường',
+          is_admin: false,
+          demoted_at: now,
+          updated_at: now
+        });
+        showToast(`Đã chuyển @${defaultUsername} thành Dân thường thành công!`);
+      } else {
+        await adminsRef.child(id).update({
+          id: String(id),
+          username: `@${defaultUsername}`,
+          name: `Super Admin (@${defaultUsername})`,
+          role: 'Super Admin',
+          is_admin: true,
+          promoted_at: now,
+          updated_at: now
+        });
+        showToast(`Đã khôi phục quyền Super Admin cho @${defaultUsername} thành công!`);
+      }
+    };
+
+    // Chỉnh sửa chức quyền Admin
+    window.editAdminRole = async function(adminId, currentName, currentRole) {
+      const newName = prompt(`Sửa tên hiển thị / Ghi chú cho Admin ID [${adminId}]:`, currentName || `Admin ${adminId}`);
+      if (newName === null) return;
+
+      const newRole = prompt(`Nhập chức vụ / vai trò mới (Ví dụ: Super Admin, Quản Lý, Hỗ Trợ, hoặc Dân thường):`, currentRole || 'Super Admin');
+      if (newRole === null || !newRole.trim()) return;
+
+      const roleTrim = newRole.trim();
+      const isDemoted = roleTrim.toLowerCase() === 'dân thường' || roleTrim.toLowerCase() === 'user' || roleTrim.toLowerCase() === 'dan thuong';
+
+      await adminsRef.child(adminId).update({
+        id: String(adminId),
+        name: newName.trim() || `Admin ${adminId}`,
+        role: roleTrim,
+        is_admin: !isDemoted,
+        updated_at: new Date().toISOString()
+      });
+
+      showToast(`Đã cập nhật vai trò thành [${roleTrim}] cho tài khoản ${adminId}!`);
+    };
+
+    // Thêm / Cập nhật Admin hoặc Dân thường từ Form
+    document.getElementById('addAdminBtn').addEventListener('click', async () => {
+      const idInput = document.getElementById('newAdminId');
+      const nameInput = document.getElementById('newAdminName');
+      const roleInput = document.getElementById('newAdminRole');
+
+      const id = idInput.value.trim();
+      const name = nameInput.value.trim();
+      const role = roleInput.value;
+
+      if (!id || !/^\d+$/.test(id)) {
+        alert('Vui lòng nhập Telegram ID hợp lệ (chỉ bao gồm các chữ số, ví dụ 6482147126)!');
+        return;
+      }
+
+      const isDemoted = role === 'Dân thường';
+      const now = new Date().toISOString();
+
+      await adminsRef.child(id).update({
+        id: String(id),
+        name: name || (isDemoted ? `Người dùng ${id}` : `Admin ${id}`),
+        role: role,
+        is_admin: !isDemoted,
+        updated_at: now
+      });
+
+      showToast(`Đã phân quyền [${role}] cho tài khoản ID: ${id} thành công!`);
+      idInput.value = '';
+      nameInput.value = '';
+    });
+
+    // Chuyển Admin thành Dân thường (Gỡ quyền Admin)
+    window.demoteAdminToUser = async function(adminId, adminName) {
+      if (confirm(`Bạn có chắc chắn muốn chuyển tài khoản [${adminName}] (ID: ${adminId}) thành DÂN THƯỜNG?\n\nTài khoản sẽ mất quyền quản trị và phải có token để soi cầu!`)) {
+        const now = new Date().toISOString();
+        await adminsRef.child(adminId).update({
+          id: String(adminId),
+          role: 'Dân thường',
+          is_admin: false,
+          demoted_at: now,
+          updated_at: now
+        });
+        showToast(`Đã chuyển tài khoản ID ${adminId} thành Dân thường!`);
+      }
+    };
+
+    // Nâng Dân thường lên lại làm Admin
+    window.promoteUserToAdmin = async function(userId, userName) {
+      const now = new Date().toISOString();
+      const defaultRole = (userId === '6482147126') ? 'Super Admin' : 'Admin';
+      await adminsRef.child(userId).update({
+        id: String(userId),
+        role: defaultRole,
+        is_admin: true,
+        promoted_at: now,
+        updated_at: now
+      });
+      showToast(`Đã nâng cấp tài khoản ID ${userId} lên làm ${defaultRole} thành công!`);
+    };
+
+    // Xóa vĩnh viễn khỏi danh sách
+    window.deleteAdminPermanently = async function(id, name) {
+      if (confirm(`Bạn có chắc chắn muốn xóa hoàn toàn tài khoản [${name}] (ID: ${id}) khỏi hệ thống?`)) {
+        await adminsRef.child(id).remove();
+        showToast(`Đã xóa tài khoản ID ${id}!`);
+      }
+    };
+
+    // ================= LỊCH SỬ NẠP THẺ CÀO (DOITHEVIP) =================
+    const cardTxRef = db.ref('transactions/cards');
+    cardTxRef.on('value', (snap) => {
+      const data = snap.val() || {};
+      renderCardTxTable(data);
+    });
+
+    function renderCardTxTable(dataObj) {
+      const tbody = document.getElementById('cardTxTableBody');
+      tbody.innerHTML = '';
+      const list = Object.values(dataObj).reverse();
+      document.getElementById('cardTxCountBadge').textContent = list.length;
+
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">Chưa có giao dịch nạp thẻ nào.</td></tr>';
+        return;
+      }
+
+      list.forEach(tx => {
+        const tr = document.createElement('tr');
+        let statusBadge = '<span class="tag-status" style="background:rgba(234,179,8,0.15); color:#eab308; border:1px solid rgba(234,179,8,0.3);">⏳ Đang Xử Lý</span>';
+        if (tx.status === 'SUCCESS') {
+          statusBadge = '<span class="tag-status tag-free">🟢 Thành Công</span>';
+        } else if (tx.status === 'FAILED') {
+          statusBadge = '<span class="tag-status tag-used">🔴 Thất Bại</span>';
+        }
+
+        const tokenCol = tx.token
+          ? `<code style="font-family:var(--mono); color:var(--gold); font-weight:800;">${tx.token}</code> <span style="font-size:11px; color:#94a3b8;">(${tx.duration || 'VIP'})</span>`
+          : '<span style="color:#64748b;">-</span>';
+
+        tr.innerHTML = `
+          <td><code style="font-family:var(--mono); color:#38bdf8;">${tx.request_id || '-'}</code></td>
+          <td><strong>${tx.user_name || 'User'}</strong> <span style="font-size:11px; color:#64748b;">(${tx.user_id})</span></td>
+          <td><strong>${tx.telco || '-'}</strong></td>
+          <td><strong style="color:var(--gold);">${parseInt(tx.amount || 0).toLocaleString('vi-VN')}đ</strong></td>
+          <td>${statusBadge}</td>
+          <td>${tokenCol}</td>
+          <td style="font-size:11px; color:#94a3b8;">${tx.created_at ? new Date(tx.created_at).toLocaleString('vi-VN') : '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Copy Token
+    window.copyToken = function(token) {
+      navigator.clipboard.writeText(token).then(() => {
+        showToast(`Đã copy mã: ${token}`);
+      });
+    };
+
+    // Xóa Token và lập tức thu hồi quyền user
+    window.deleteToken = async function(token) {
+      if (confirm(`Bạn có chắc chắn muốn xóa mã [${token}] không?`)) {
+        const snap = await tokensRef.child(token).once('value');
+        const tVal = snap.val();
+        if (tVal && tVal.used_by_id) {
+          await db.ref('users/' + tVal.used_by_id).remove().catch(() => {});
+        }
+        await tokensRef.child(token).remove();
+        showToast(`Đã xóa mã ${token} và thu hồi quyền user ngay lập tức!`);
+      }
+    };
+
+    // ================= QUẢN LÝ LINK API CÁC CỔNG GAME =================
+    let allEndpointsList = [];
+
+    async function loadEndpointsList() {
+      try {
+        const res = await fetch('/api/channels');
+        const data = await res.json();
+        allEndpointsList = Array.isArray(data) ? data : [];
+        const countBadge = document.getElementById('endpointCountBadge');
+        if (countBadge) countBadge.textContent = allEndpointsList.length;
+        renderEndpointsTable(allEndpointsList);
+      } catch (err) {
+        console.error('Lỗi tải danh sách cổng:', err);
+      }
+    }
+
+    function renderEndpointsTable(list) {
+      const tbody = document.getElementById('endpointsTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (!list || list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#64748b;">Không tìm thấy cổng nào phù hợp.</td></tr>';
+        return;
+      }
+
+      list.forEach((c, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${idx + 1}</strong></td>
+          <td>
+            <strong>${c.icon || '🎲'} ${c.platform}</strong>
+            <div style="font-size: 11px; color: #94a3b8;">${c.gameName}</div>
+          </td>
+          <td>
+            <code style="font-family: var(--mono); color: var(--gold); font-size: 11px;">${c.id}</code>
+          </td>
+          <td>
+            <input type="text" id="url_input_${c.id}" class="input-field mono-input" value="${c.url || ''}" style="font-size: 12px; padding: 6px 10px; width: 100%;" placeholder="https://...">
+            <div id="ping_status_${c.id}" style="font-size: 11px; margin-top: 4px; color: #94a3b8; display: none;"></div>
+          </td>
+          <td style="text-align: center;">
+            <div style="display: flex; gap: 6px; justify-content: center;">
+              <button class="btn-create" onclick="testUrl('${c.id}')" style="padding: 5px 10px; font-size: 11px; background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.4); color: var(--cyan);">🧪 Test</button>
+              <button class="btn-create" onclick="saveUrl('${c.id}')" style="padding: 5px 10px; font-size: 11px; background: linear-gradient(135deg, #10b981, #059669); color: #fff;">💾 Lưu</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Tìm kiếm cổng
+    document.getElementById('endpointSearchInput')?.addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      const filtered = allEndpointsList.filter(c => 
+        (c.platform && c.platform.toLowerCase().includes(q)) ||
+        (c.gameName && c.gameName.toLowerCase().includes(q)) ||
+        (c.id && c.id.toLowerCase().includes(q))
+      );
+      renderEndpointsTable(filtered);
+    });
+
+    // Test kết nối URL
+    window.testUrl = async function(id) {
+      const input = document.getElementById(`url_input_${id}`);
+      const statusDiv = document.getElementById(`ping_status_${id}`);
+      if (!input || !statusDiv) return;
+      const url = input.value.trim();
+      if (!url) {
+        showToast('Vui lòng nhập URL cần test!');
+        return;
+      }
+      statusDiv.style.display = 'block';
+      statusDiv.innerHTML = '<span style="color:#eab308;">⏳ Đang ping thử kết nối...</span>';
+
+      try {
+        const res = await fetch('/api/test-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusDiv.innerHTML = `<span style="color:var(--emerald);">🟢 Kết nối OK (${data.latency || 0}ms) - Trạng thái: ${data.status}</span>`;
+          showToast(`Test [${id}] thành công: ${data.latency || 0}ms`);
+        } else {
+          statusDiv.innerHTML = `<span style="color:var(--rose);">🔴 Lỗi: ${data.error || 'Không phản hồi'}</span>`;
+          showToast(`Test [${id}] thất bại!`);
+        }
+      } catch (e) {
+        statusDiv.innerHTML = `<span style="color:var(--rose);">🔴 Lỗi: ${e.message}</span>`;
+      }
+    };
+
+    // Lưu URL mới
+    window.saveUrl = async function(id) {
+      const input = document.getElementById(`url_input_${id}`);
+      if (!input) return;
+      const url = input.value.trim();
+      if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+        showToast('URL không hợp lệ! Vui lòng bắt đầu bằng http:// hoặc https://');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/channel/${id}/update-url`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✅ Đã cập nhật link cho cổng [${id}] thành công!`);
+          const target = allEndpointsList.find(c => c.id === id);
+          if (target) target.url = url;
+        } else {
+          showToast(`❌ Lỗi: ${data.error || 'Không thể cập nhật'}`);
+        }
+      } catch (e) {
+        showToast(`❌ Lỗi: ${e.message}`);
+      }
+    };
+
+    loadEndpointsList();
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 2800);
+    }
+  </script>
+</body>
+</html>
