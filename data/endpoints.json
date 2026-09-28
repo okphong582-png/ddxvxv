@@ -1,5 +1,23 @@
 [
   {
+    "id": "gb68_tx",
+    "platform": "68GB",
+    "icon": "🟢",
+    "gameName": "Bàn Xanh · Tài Xỉu",
+    "gameType": "taixiu",
+    "url": "https://winds-fonts-seq-jaguar.trycloudflare.com/api/68/thuong",
+    "active": true
+  },
+  {
+    "id": "gb68_txmd5",
+    "platform": "68GB",
+    "icon": "🔴",
+    "gameName": "Bàn Đỏ · MD5",
+    "gameType": "taixiu",
+    "url": "https://objectives-scanning-list-reliance.trycloudflare.com/api/68/md5",
+    "active": true
+  },
+  {
     "id": "sunwin_tx",
     "platform": "Sunwin",
     "icon": "☀️",
@@ -282,9 +300,9 @@
     "id": "volta_general",
     "platform": "Volta Sunwin & 789Club",
     "icon": "🐧",
-    "gameName": "Volta Bot Feed",
-    "gameType": "taixiu",
+    "gameName": "Volta bóng đá · không phải TX",
+    "gameType": "external",
     "url": "https://exploration-channels-note-headline.trycloudflare.com/api/volta",
-    "active": true
+    "active": false
   }
 ]

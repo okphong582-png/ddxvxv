@@ -7,10 +7,11 @@
     "start": "node server.js",
     "dev": "node server.js",
     "bot": "node runner-247.js",
-    "test": "node -c server.js && node -c bot.js"
+    "test": "node --test tests/*.test.js",
+    "audit": "node scripts/audit-portals.js"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "keywords": [
     "taixiu",

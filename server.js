@@ -1,22 +1,24 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const config = require('./lib/config');
-const collector = require('./lib/collector');
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const config = require("./lib/config");
+const collector = require("./lib/collector");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Healthcheck & Keep-Alive endpoint
-app.get('/ping', (req, res) => res.status(200).send('pong'));
-app.get('/healthz', (req, res) => res.status(200).json({ status: 'ok', uptime: process.uptime() }));
+app.get("/ping", (req, res) => res.status(200).send("pong"));
+app.get("/healthz", (req, res) =>
+  res.status(200).json({ status: "ok", uptime: process.uptime() }),
+);
 
 // API: Lấy danh sách tất cả các cổng game và trạng thái
-app.get('/api/channels', (req, res) => {
+app.get("/api/channels", (req, res) => {
   try {
     const list = collector.getAllChannelsOverview();
     res.json({ success: true, channels: list });
@@ -26,7 +28,7 @@ app.get('/api/channels', (req, res) => {
 });
 
 // API: Lấy chi tiết phiên, dự đoán và lịch sử của một kênh
-app.get('/api/channel/:id', (req, res) => {
+app.get("/api/channel/:id", (req, res) => {
   try {
     const { id } = req.params;
     const data = collector.getChannelData(id);
@@ -36,45 +38,61 @@ app.get('/api/channel/:id', (req, res) => {
   }
 });
 
+app.use("/api", (req, res, next) => {
+  if (req.method !== "POST" || req.path.startsWith("/force-refresh/"))
+    return next();
+  const key = process.env.ADMIN_API_KEY;
+  if (!key || req.headers.authorization !== "Bearer " + key)
+    return res
+      .status(401)
+      .json({ success: false, error: "Cần ADMIN_API_KEY để thay đổi API" });
+  next();
+});
 // API: Cập nhật URL của một kênh (khi link cloudflare thay đổi)
-app.post('/api/channel/:id/update-url', (req, res) => {
+app.post("/api/channel/:id/update-url", (req, res) => {
   try {
     const { id } = req.params;
     const { url } = req.body;
-    if (!url || typeof url !== 'string') {
-      return res.status(400).json({ success: false, error: 'URL không hợp lệ' });
+    if (!url || typeof url !== "string") {
+      return res
+        .status(400)
+        .json({ success: false, error: "URL không hợp lệ" });
     }
 
     const updated = config.updateEndpointUrl(id, url);
     if (!updated) {
-      return res.status(404).json({ success: false, error: 'Không tìm thấy kênh' });
+      return res
+        .status(404)
+        .json({ success: false, error: "Không tìm thấy kênh" });
     }
 
     // Tự động kích hoạt fetch thử kênh vừa cập nhật
     const channels = config.loadEndpoints();
-    const target = channels.find(c => c.id === id);
+    const target = channels.find((c) => c.id === id);
     if (target) {
       collector.fetchChannel(target);
     }
 
-    res.json({ success: true, message: 'Đã cập nhật URL thành công!', url });
+    res.json({ success: true, message: "Đã cập nhật URL thành công!", url });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // API: Test kết nối thử một URL bất kỳ (kiểm tra ping và xem kết quả)
-app.post('/api/test-url', async (req, res) => {
+app.post("/api/test-url", async (req, res) => {
   try {
     const { url } = req.body;
-    if (!url) {
-      return res.status(400).json({ success: false, error: 'Vui lòng cung cấp URL' });
+    if (!config.validateUrl(url)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Vui lòng cung cấp URL" });
     }
 
     const startTime = Date.now();
     const response = await fetch(url.trim(), {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      signal: AbortSignal.timeout(5000)
+      headers: { "User-Agent": "Mozilla/5.0" },
+      signal: AbortSignal.timeout(5000),
     });
     const ping = Date.now() - startTime;
 
@@ -83,7 +101,7 @@ app.post('/api/test-url', async (req, res) => {
         success: false,
         ping,
         status: response.status,
-        error: `Máy chủ trả về mã HTTP ${response.status}`
+        error: `Máy chủ trả về mã HTTP ${response.status}`,
       });
     }
 
@@ -99,23 +117,23 @@ app.post('/api/test-url', async (req, res) => {
       success: true,
       ping,
       status: response.status,
-      data: json
+      data: json,
     });
   } catch (err) {
     res.json({
       success: false,
       ping: 5000,
-      error: err.message
+      error: err.message,
     });
   }
 });
 
 // API: Bắt buộc làm mới dữ liệu kênh ngay lập tức
-app.post('/api/force-refresh/:id', async (req, res) => {
+app.post("/api/force-refresh/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const channels = config.loadEndpoints();
-    const target = channels.find(c => c.id === id);
+    const target = channels.find((c) => c.id === id);
     if (target) {
       await collector.fetchChannel(target);
     }
@@ -127,7 +145,7 @@ app.post('/api/force-refresh/:id', async (req, res) => {
 });
 
 // API: Lấy bảng xếp hạng & tổng quan AI tự chơi của tất cả các cổng
-app.get('/api/ai/overview', (req, res) => {
+app.get("/api/ai/overview", (req, res) => {
   try {
     const overview = collector.getAiOverview();
     res.json({ success: true, data: overview });
@@ -137,42 +155,75 @@ app.get('/api/ai/overview', (req, res) => {
 });
 
 // API: Lấy chi tiết AI phân tích vị và thống kê train của 1 cổng
-app.get('/api/ai/:id', (req, res) => {
+app.get("/api/ai/:id", (req, res) => {
   try {
     const { id } = req.params;
     const channelData = collector.getChannelData(id);
-    res.json({ success: true, ai: channelData.ai, prediction: channelData.prediction, latest: channelData.latest });
+    res.json({
+      success: true,
+      ai: channelData.ai,
+      prediction: channelData.prediction,
+      latest: channelData.latest,
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Bắt đầu quét dữ liệu các cổng game
-collector.startPolling(5000);
+if (process.env.COLLECTOR_AUTOSTART !== "false") collector.startPolling(5000);
 
 // Khởi động Telegram Bot song song
 try {
-  require('./bot');
-  console.log('🤖 Telegram Bot đã tích hợp vào hệ thống!');
+  require("./bot");
+  console.log("🤖 Telegram Bot đã tích hợp vào hệ thống!");
 } catch (err) {
-  console.error('Lỗi khởi động Telegram Bot:', err.message);
+  console.error("Lỗi khởi động Telegram Bot:", err.message);
 }
 
-app.listen(PORT, () => {
+const httpServer = app.listen(PORT, () => {
   console.log(`====================================================`);
-  console.log(`🚀 [AI TÀI XỈU VIP SERVER] Đang chạy tại http://localhost:${PORT}`);
+  console.log(
+    `🚀 [AI TÀI XỈU VIP SERVER] Đang chạy tại http://localhost:${PORT}`,
+  );
   console.log(`👑 [ADMIN TOKEN MANAGER] http://localhost:${PORT}/admin.html`);
-  console.log(`📡 Đã tải danh sách các cổng game và khởi động bộ soi cầu đa thuật toán`);
+  console.log(
+    `📡 Đã tải danh sách các cổng game và khởi động bộ soi cầu đa thuật toán`,
+  );
   console.log(`====================================================`);
 
   // Tự động kích hoạt Anti-Sleep 24/7 (tự ping mỗi 8 phút) nếu chạy trên Render / Koyeb / Heroku
-  const externalUrl = process.env.RENDER_EXTERNAL_URL || process.env.APP_URL || process.env.WEB_URL;
+  const externalUrl =
+    process.env.RENDER_EXTERNAL_URL ||
+    process.env.APP_URL ||
+    process.env.WEB_URL;
   if (externalUrl) {
-    const httpLib = externalUrl.startsWith('https') ? require('https') : require('http');
-    setInterval(() => {
-      httpLib.get(`${externalUrl}/ping`, () => {}).on('error', () => {});
-    }, 8 * 60 * 1000);
-    console.log(`🛡️ [Keep-Alive 24/7] Đã bật cơ chế tự động chống ngủ đông cho: ${externalUrl}`);
+    const httpLib = externalUrl.startsWith("https")
+      ? require("https")
+      : require("http");
+    setInterval(
+      () => {
+        httpLib.get(`${externalUrl}/ping`, () => {}).on("error", () => {});
+      },
+      8 * 60 * 1000,
+    );
+    console.log(
+      `🛡️ [Keep-Alive 24/7] Đã bật cơ chế tự động chống ngủ đông cho: ${externalUrl}`,
+    );
   }
 });
 
+function shutdown() {
+  collector.stopPolling();
+  try {
+    require("./bot").stop();
+    collector.saveHistory();
+    require("./lib/ai_engine").saveStore();
+  } catch (e) {
+    console.error("[Shutdown]", e.message);
+  }
+  httpServer.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 2000).unref();
+}
+process.once("SIGTERM", shutdown);
+process.once("SIGINT", shutdown);

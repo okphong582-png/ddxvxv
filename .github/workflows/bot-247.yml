@@ -1,50 +1,63 @@
-name: Telegram Bot & Web Tai Xiu 24/7
-
+name: Bot TX - validate and run
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   schedule:
-    # Tự động kích hoạt định kỳ mỗi 4 giờ
-    - cron: '0 */4 * * *'
+    - cron: "17 */4 * * *"
   workflow_dispatch:
-
-# Đảm bảo token có đủ quyền tự động kích hoạt lại workflow kế tiếp
 permissions:
-  actions: write
   contents: read
-
+  actions: write
 concurrency:
   group: bot-running-group
-  cancel-in-progress: true
-
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     timeout-minutes: 320
-
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8943928965:AAHK2BPlmHdnAfL3IyU3KKWomsIz2B2mT_k' }}
+      STATE_ENCRYPTION_KEY: ${{ secrets.STATE_ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' }}
+      ADMIN_IDS: "6482147126"
+      DOITHEVIP_PARTNER_ID: ${{ secrets.DOITHEVIP_PARTNER_ID }}
+      DOITHEVIP_PARTNER_KEY: ${{ secrets.DOITHEVIP_PARTNER_KEY }}
+      DOITHEVIP_WALLET: ${{ secrets.DOITHEVIP_WALLET }}
+      PORT: "3000"
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run Telegram Bot & Server 24/7
-        env:
-          PORT: 3000
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || '8943928965:AAHK2BPlmHdnAfL3IyU3KKWomsIz2B2mT_k' }}
+          node-version: "22"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Tests
+        run: npm test
+      - name: Verify required secrets and Telegram access
+        run: node scripts/check-env.js
+      - name: Restore encrypted state
+        uses: actions/cache/restore@v4
+        with:
+          path: .state/runtime.enc
+          key: bot-state-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: bot-state-v2-
+      - name: Decrypt runtime state
+        id: restore
+        run: node scripts/state-archive.js restore
+      - name: Run supervised bot
+        id: runtime
         run: node runner-247.js
-
-      - name: Auto-Trigger Next Run (Self-Restart)
-        if: always()
-        continue-on-error: true
+      - name: Encrypt runtime state
+        if: always() && steps.restore.outcome == 'success'
+        run: node scripts/state-archive.js save
+      - name: Save encrypted state
+        if: always() && steps.restore.outcome == 'success'
+        uses: actions/cache/save@v4
+        with:
+          path: .state/runtime.enc
+          key: bot-state-v2-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Queue next run after rotation or runtime failure
+        if: ${{ !cancelled() && (steps.runtime.outcome == 'success' || steps.runtime.outcome == 'failure') }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "Kích hoạt phiên kế tiếp để bot duy trì 24/24..."
-          gh workflow run bot-247.yml --ref ${{ github.ref_name }} || true
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bot-247.yml --ref main

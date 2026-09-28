@@ -1,46 +1,58 @@
-# HƯỚNG DẪN VÀ TÀI LIỆU HỆ THỐNG HOANGHA SKY - SOI CẦU TÀI XỈU AI & WEB DASHBOARD
+# HOANGHA SKY · Theo dõi TX và kiểm thử thống kê
 
-Hệ thống bot Telegram kết hợp Web Dashboard soi cầu đa thuật toán thực chiến chuẩn phong cách Hoangha SKY kết nối hơn 25 cổng game (Sunwin, Hitclub, 789Club, B52, LC79, Rikvip, Betvip, Son789, Ta28, Luck8, Xocdia88...).
+Bot Telegram và dashboard đọc dữ liệu riêng cho từng cổng. Bản này loại bỏ lịch sử ngẫu nhiên, tỷ lệ thắng bị ép lên và xúc xắc tự tạo. Không cam kết dự đoán chính xác tuyệt đối, giải mã MD5 hoặc thắng tiền.
 
----
+## Đã thay đổi
 
-## 1. Thông Tin Admin Quản Trị Cấp Cao
-- **Super Admin Duy Nhất**: ID Telegram `6482147126` (Hoangha)
-- *Tài khoản này được phân quyền Super Admin vĩnh viễn, toàn quyền quản trị hệ thống và không cần nhập mã token.*
+- 33 cổng TX/Sicbo/Xóc Đĩa, bao gồm 68GB bàn xanh và bàn đỏ. Chỉ nhận mã phiên và kết quả hợp lệ; giữ dữ liệu từng cổng tách biệt.
+- Sexy V1 và V2 có menu Baccarat riêng. V2 thiếu mã phiên/shoe, nên chỉ thống kê chuỗi nguồn hiện tại. V1 đang trả dữ liệu chờ cũng không được xem là kết quả. Volta là nguồn bóng đá, tách khỏi mô hình TX.
+- Mô hình thống kê kết hợp mốc 50/50, tần suất Bayesian, Markov bậc 1/2; trọng số thích nghi theo sai số của các dự báo trước đó. Không dùng giả thuyết “bệt dài chắc chắn phải đảo”.
+- Kiểm thử walk-forward dùng cùng thuật toán với dự báo, chỉ nhìn dữ liệu trước phiên được chấm. Bỏ các khoảng mất phiên. Có số mẫu, tỷ lệ đúng thật, khoảng Wilson 95%, Brier score và mốc dự báo theo đa số.
+- Tỷ lệ kiểm thử lịch sử và tỷ lệ đối chiếu trực tiếp được hiển thị riêng. Bộ đếm live cũ không được kế thừa vì từng chứa tỷ lệ không trung thực.
+- Chờ thêm dữ liệu khi chưa có 20 phiên hợp lệ, 5 phiên cuối liên tiếp, ít nhất 30 dự báo kiểm thử hoặc cận dưới khoảng 95% chưa vượt 50%. Đây là bộ lọc tham khảo, không phải chứng minh khả năng sinh lời.
+- Nguồn quá 3 phút, phiên lùi, phiên bị sửa kết quả hoặc lỗi API không được trình bày là tín hiệu mới. API không có thời gian được kiểm tra bằng việc mã phiên có tiếp tục thay đổi hay không.
 
----
+## Menu Telegram
 
-## 2. Các Lệnh Quản Trị Dành Riêng Cho Admin Trên Telegram
-- `/updatecong`: Xem danh sách tất cả các cổng game, bấm chọn cổng và gửi link Cloudflare mới để cập nhật tức thì. Hoặc dùng cú pháp nhanh: `/updatecong <mã_cổng> <link_mới>`.
-- `/baotri <nội dung>`: Đặt trạng thái bảo trì toàn hệ thống. Người dùng thông thường sẽ nhận được thông báo này và bị tạm khóa.
-- `/tatbaotri`: Tắt bảo trì, mở lại cho người dùng truy cập bình thường.
-- `/addadmin <id> [tên]`: Nâng quyền Admin cho một ID Telegram bất kỳ.
-- `/deladmin <id>`: Chuyển một Admin thành Dân Thường (thu hồi quyền quản trị).
-- `/chuyenquyen <id>`: Đảo chiều trạng thái 2 chiều: Admin ⇄ Dân Thường.
+Dùng /start để mở menu. Các nút tách Tài Xỉu thường, MD5, Sicbo, Xóc Đĩa, tỷ lệ từng cổng, lịch sử và nguồn ngoài. Danh sách có phân trang, trạng thái kết nối và nút về trang chủ.
 
----
+Admin: mở **Gửi thông báo** hoặc gửi /broadcast nội_dung, kiểm tra bản xem trước rồi bấm **Gửi thông báo**. Bản nháp hết hạn sau 10 phút. Chỉ admin sở hữu bản nháp có thể xác nhận; nút xác nhận không thể gửi lặp lại một đợt. Mục **Tiến độ gửi** cho phép xem hoặc dừng.
 
-## 3. Bản Quyền & Cơ Chế Auto Kick-Out
-- Khi người dùng mới vào bot, bot sẽ yêu cầu nhập Token và hiển thị liên hệ:
-  - **Super Admin**: `Hoangha` (ID Telegram: `6482147126`)
-- **Cơ chế Realtime Auth**: Mỗi lượt người dùng thao tác, bot kiểm tra trực tiếp Firebase:
-  - Nếu mã Token bị Admin xóa trên web quản trị.
-  - Hoặc mã Token hết hạn (1 ngày, 7 ngày, 30 ngày...).
-  - 👉 **Người dùng lập tức bị out ngay (Kick-out)** và không thể tiếp tục soi cầu.
+- Gửi tới người từng nhắn bot và các tài khoản đã có trong cơ sở dữ liệu người dùng. Telegram không cho bot tự mở hội thoại với người chưa dùng bot.
+- Gửi văn bản tối đa 3.500 ký tự, khoảng 10 tin/giây, chờ theo retry_after khi gặp 429; đánh dấu người đã chặn bot khi gặp 403.
+- /stop dừng thông báo; /nhanthongbao bật lại. /cancel hủy thao tác đang soạn.
+- Nếu mất kết nối đúng lúc gửi, trạng thái được báo là “chưa rõ”, không tự gửi lại mù quáng. Sau khi khởi động lại, hàng đợi tiếp tục từ vị trí đã lưu. Vì Telegram không hỗ trợ khóa chống trùng cho sendMessage, không thể bảo đảm vừa không trùng vừa không bỏ sót khi mạng đứt đúng thời điểm.
+- Thông báo phiên tự động hiện theo Sunwin; quyền truy cập được kiểm tra lại trước khi gửi.
 
----
+Các chức năng token, quản lý admin, cập nhật link và gia hạn vẫn có. Chủ bot được cấu hình bởi ADMIN_IDS. Cập nhật API qua Telegram bằng /updatecong; URL phải là HTTPS thuộc trycloudflare.com. Giao diện web sửa cấu hình cần ADMIN_API_KEY; có thể dùng Telegram thay cho web.
 
-## 4. Trang Quản Trị Cấp Token Web
-- Địa chỉ: `http://localhost:3000/admin.html`
-- Kết nối Firebase Realtime Database: tạo mã token mới, xem mã nào đã kích hoạt (kèm Telegram ID & Tên người dùng), bật/tắt bảo trì hoặc xóa token.
+## Chạy và kiểm thử
 
----
+Yêu cầu Node.js 22 trở lên.
 
-## 5. Cơ Chế Chạy Tự Động 24/7 (GitHub Actions & Cloud)
-- **Tự động chạy trên GitHub Actions:**
-  - Hệ thống đã tích hợp sẵn workflow `.github/workflows/bot-247.yml`.
-  - Khi push code lên GitHub, GitHub Actions sẽ tự động khởi động bot chạy 24/7.
-  - Tự động xoay vòng phiên và dự phòng chạy lại định kỳ mỗi 4 giờ (`0 */4 * * *`).
-  - *Lưu ý:* Khi tạo repo mới trên GitHub, hãy vào tab **Actions** và bấm **"I understand my workflows, go ahead and enable them"** (nếu GitHub hiển thị yêu cầu bật).
-- **Tự động chạy trên Render / Railway:**
-  - Đã có sẵn file `Procfile` (`web: npm start`) và `render.yaml`. Chỉ cần kết nối repo với Render là hệ thống tự build và chạy 24/7.
+    npm ci
+    npm test
+    npm run audit
+    node --env-file=.env runner-247.js
+
+Sao chép .env.example thành .env và điền biến môi trường trước khi chạy. Mọi dữ liệu đang hoạt động nằm ở data/runtime hoặc DATA_DIR. Không commit thư mục này.
+
+Báo cáo tái tạo được: [reports/portal-audit.md](reports/portal-audit.md) và bản máy đọc [reports/portal-audit.json](reports/portal-audit.json). Báo cáo dùng dữ liệu lịch sử có raw API trong repo, không coi dữ liệu mô phỏng cũ là mẫu thật. Trạng thái API chỉ đúng tại thời điểm kiểm tra.
+
+## GitHub Actions và khôi phục
+
+Workflow bot-247.yml chạy khi push main, gọi thủ công hoặc lịch dự phòng mỗi 4 giờ. Quy trình: npm ci → kiểm thử → kiểm tra Secrets/getMe → khôi phục trạng thái → chạy supervisor. Chỉ một workflow cùng nhóm được chạy tại một thời điểm. Bản push mới thay thế bản cũ.
+
+Repository Secrets cần có:
+
+- TELEGRAM_BOT_TOKEN: token bot.
+- STATE_ENCRYPTION_KEY: khóa ngẫu nhiên 32 byte viết thành 64 ký tự hex, cần giữ ổn định để giải mã trạng thái.
+- DOITHEVIP_PARTNER_ID, DOITHEVIP_PARTNER_KEY, DOITHEVIP_WALLET: nếu dùng nạp thẻ.
+
+Supervisor chạy lại server khi tiến trình thoát, tăng khoảng chờ tối đa 30 giây; healthcheck lỗi ba lần cũng khởi động lại. Sau khoảng 4 giờ 50 phút, tiến trình dừng, lưu cache đã mã hóa AES-256-GCM và yêu cầu lượt tiếp theo. Tài khoản người dùng, nội dung thông báo và khóa bí mật không được upload dưới dạng văn bản rõ. Hủy workflow thủ công không tự yêu cầu chạy lại ngay; lịch dự phòng vẫn có thể chạy sau đó. Muốn dừng hẳn, disable workflow.
+
+GitHub Actions **không bảo đảm chạy liên tục không gián đoạn**: runner có giới hạn 6 giờ/job, lịch có thể trễ, cache có thể bị loại bỏ, repo công khai không hoạt động 60 ngày có thể bị tắt lịch. Mất máy đột ngột trước bước sao lưu có thể mất phần trạng thái chưa được chuyển đi. Muốn vận hành lâu dài ổn định hơn, dùng máy chủ có đĩa bền vững và process manager; không chạy hai nơi bằng cùng token Telegram.
+
+Tài liệu: [Giới hạn Actions](https://docs.github.com/en/actions/reference/limits), [Lịch workflow](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule), [Giới hạn gửi Telegram](https://core.telegram.org/bots/faq#my-bot-is-hitting-limits-how-do-i-avoid-this).
+
+Token bot và khóa đối tác từng được nhúng trong lịch sử Git cũ. Bản mới dùng biến môi trường/Secrets, nhưng việc bỏ khỏi mã hiện tại không thu hồi khóa đã công khai. Chủ bot nên đổi token qua BotFather và đổi khóa đối tác rồi cập nhật Secrets.
